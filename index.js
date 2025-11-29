@@ -9,8 +9,9 @@ app.use(exprees.json());
 const COLLECTION = "productos"
 
 app.post("/productos", async (req, res) => {
-    try{
+    try {
         const data = req.body;
+
         const required = [
             "cantidadStock",
             "codigoBarra",
@@ -22,6 +23,7 @@ app.post("/productos", async (req, res) => {
             "proveedor",
             "fechaVencimiento"
         ];
+
         for (const campo of required) {
             if (!data[campo] && data[campo] !== 0) {
                 return res.status(400).json({
@@ -29,15 +31,30 @@ app.post("/productos", async (req, res) => {
                 });
             }
         }
-        const nuevo = await db.collection(COLLECTION).add(data)
+
+        const existente = await db
+            .collection(COLLECTION)
+            .where("codigoBarra", "==", data.codigoBarra)
+            .get();
+
+        if (!existente.empty) {
+            return res.status(400).json({
+                mensaje: "El código de barra ya existe en otro producto"
+            });
+        }
+
+        const nuevo = await db.collection(COLLECTION).add(data);
+
         res.json({
             id: nuevo.id,
-            mensaje: "El producto se guardo"
+            mensaje: "El producto se guardó"
         });
-    } catch(error){
-        res.status(500).json({error: error.message});
+
+    } catch (error) {
+        res.status(500).json({ error: error.message });
     }
 });
+
 
 app.get("/productos", async (req, res)=>{
     try{
