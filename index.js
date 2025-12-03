@@ -33,7 +33,7 @@ app.post("/productos", async (req, res) => {
         }
         if (!Number.isInteger(data.cantidadStock) || data.cantidadStock <= 0) {
             return res.status(400).json({
-                mensaje: "El stock debe ser un número entero mayor a 0"
+                mensaje: "El stock debe ser un número entero o mayor a 0"
             });
         }
         const existente = await db
