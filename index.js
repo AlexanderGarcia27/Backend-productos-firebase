@@ -31,30 +31,29 @@ app.post("/productos", async (req, res) => {
                 });
             }
         }
-
+        if (!Number.isInteger(data.cantidadStock) || data.cantidadStock <= 0) {
+            return res.status(400).json({
+                mensaje: "El stock debe ser un número entero mayor a 0"
+            });
+        }
         const existente = await db
             .collection(COLLECTION)
             .where("codigoBarra", "==", data.codigoBarra)
             .get();
-
         if (!existente.empty) {
             return res.status(400).json({
                 mensaje: "El código de barra ya existe en otro producto"
             });
         }
-
         const nuevo = await db.collection(COLLECTION).add(data);
-
         res.json({
             id: nuevo.id,
             mensaje: "El producto se guardó"
         });
-
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
-
 
 app.get("/productos", async (req, res)=>{
     try{
